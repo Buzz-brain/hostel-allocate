@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Campus Hostel Allocation System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet" />
+    <script
+        src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script>
+    <script src="https://ai-public.creatie.ai/gen_page/tailwind-config.min.js" data-color="#000000"
+        data-border-radius="small"></script>
+</head>
+
+<body class="bg-gray-50 font-sans">
+    <nav class="bg-white shadow">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="ml-2 text-xl font-semibold text-blue-900">Campus Hostel Allocation</span>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <a id="user" href="#login"
+                        class="!rounded-button inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium text-white bg-blue-900 hover:bg-custom/90"><i
+                            class="fas fa-user mr-2"></i></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div id="alertCtn" class="rounded-lg hidden bg-green-100 p-4 mb-6 w-full">
+                <div class="flex">
+                    <i class="fas fa-check-circle text-green-400"></i>
+                    <div class="ml-3 text-sm font-medium text-green-800" id="alertMsg">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="max-w-4xl mx-auto mt-8 bg-white rounded-xl shadow-lg p-6" id="gender-modal">
+                <h2 class="text-2xl font-bold text-center mb-6">Select Your Gender</h2>
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <button id="male-button"
+                        class="flex flex-col items-center justify-center p-6 border-2 border-gray-200 rounded-xl hover:border-custom transition-all">
+                        <i class="fas fa-male text-4xl mb-2 text-blue-900"></i>
+                        <span class="text-lg font-medium">Male</span>
+                    </button>
+                    <button id="female-button"
+                        class="flex flex-col items-center justify-center p-6 border-2 border-gray-200 rounded-xl hover:border-custom transition-all">
+                        <i class="fas fa-female text-4xl mb-2 text-blue-900"></i>
+                        <span class="text-lg font-medium">Female</span>
+                    </button>
+                </div>
+            </div>
+
+
+            <div class="max-w-4xl mx-auto mt-8 bg-white rounded-xl shadow-lg p-6 text-center" id="submit-section">
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Your Preferences</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Light Condition</h3>
+                            <div class="space-y-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="lightCondition" class="form-radio text-custom"
+                                        value="dark" />
+                                    <span class="ml-2">Dark Room</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="lightCondition" class="form-radio text-custom"
+                                        value="light" />
+                                    <span class="ml-2">Light Room</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Noise Level</h3>
+                            <div class="space-y-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="noiseLevel" class="form-radio text-custom"
+                                        value="music" />
+                                    <span class="ml-2">Sleep with Music</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="noiseLevel" class="form-radio text-custom"
+                                        value="no-music" />
+                                    <span class="ml-2">Without Music</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6">
+                            <h3 class="text-lg font-semibold mb-4">Reading Time</h3>
+                            <div class="space-y-4">
+                                <label class="flex items-center">
+                                    <input type="radio" name="readingTime" class="form-radio text-custom" value="day" />
+                                    <span class="ml-2">Day</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="readingTime" class="form-radio text-custom"
+                                        value="night" />
+                                    <span class="ml-2">Night</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="confirmSelectionButton"
+                        class="w-full bg-blue-900 text-white rounded-lg px-6 py-3 font-medium hover:bg-custom/90">Confirm
+                        Selection</button>
+                </div>
+                <div id="alertMsg"></div>
+            </div>
+
+
+
+            <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+                <div class="text-center"><button id="findMyRoomButton"
+                        class="bg-blue-900 text-white rounded-lg px-8 py-4 font-medium text-lg hover:bg-custom/90 relative"><span>Find
+                            My Room</span>
+                        <div class="hidden absolute inset-0 bg-custom rounded-lg flex items-center justify-center">
+                            <svg class="animate-spin h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+
+
+                <div class="mt-6 bg-white rounded-xl shadow-lg p-6">
+
+
+                    <h3 class="text-lg font-semibold mb-4">Roommates Information</h3>
+                    <div class="space-y-4" id="roomie">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <div>
+                                <p class="font-medium"></p>
+                                <p class="text-sm text-blue-500"></p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <div>
+                                <p class="font-medium"></p>
+                                <p class="text-sm text-blue-500"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+    <footer class="bg-white">
+        <div class="max-w-8xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="mt-8 border-t border-gray-200 pt-8 md:flex md:items-center md:justify-between">
+                <div class="flex space-x-6 md:order-2">
+                    <a href="#" class="text-blue-400 hover:text-blue-500">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="text-blue-400 hover:text-blue-500">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-blue-400 hover:text-blue-500">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+                <p class="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
+                    © 2025 Campus Hostel Allocation. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const alertCtn = document.getElementById("alertCtn");
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userNameElement = document.getElementById('user');
+            userNameElement.textContent = user.name;
+        });
+
+        const maleButton = document.getElementById('male-button');
+        const femaleButton = document.getElementById('female-button');
+        const confirmSelectionButton = document.getElementById('confirmSelectionButton');
+        const alertMsgElement = document.getElementById('alertMsg');
+
+        let selectedGender;
+        let selectedPreferences = {};
+
+        maleButton.addEventListener('click', () => {
+            selectedGender = 'Male';
+            maleButton.classList.add('bg-blue-900', 'text-white');
+            femaleButton.classList.remove('bg-blue-900', 'text-white');
+            maleButton.querySelector('i').classList.add('text-white');
+            femaleButton.querySelector('i').classList.remove('text-white');
+        });
+
+        femaleButton.addEventListener('click', () => {
+            selectedGender = 'Female';
+            femaleButton.classList.add('bg-blue-900', 'text-white');
+            maleButton.classList.remove('bg-blue-900', 'text-white');
+            femaleButton.querySelector('i').classList.add('text-white');
+            maleButton.querySelector('i').classList.remove('text-white');
+        });
+
+        const preferenceInputs = document.querySelectorAll('input[type="radio"]');
+
+        preferenceInputs.forEach((input) => {
+            input.addEventListener("change", (e) => {
+                const { name, value } = e.target;
+                selectedPreferences[name] = value;
+            });
+        });
+
+
+        const userId = JSON.parse(localStorage.getItem('user'))._id;
+
+        confirmSelectionButton.addEventListener("click", async () => {
+            if (!selectedGender || Object.keys(selectedPreferences).length === 0) {
+                alert("Please select your gender and preferences");
+                return;
+            }
+
+
+            const hostel = selectedGender === "Male" ? "Male Hostel" : "Female Hostel";
+
+            console.log(userId, hostel, selectedPreferences)
+
+            try {
+                const response = await fetch("/assign-hostel", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userId, hostel, preferences: selectedPreferences }),
+                });
+
+                const data = await response.json();
+                console.log(data)
+                alertCtn.style.display = "block"
+                alertMsgElement.textContent = data.message;
+                setTimeout(() => {
+                    alertCtn.style.display = "none";
+                }, 5000);
+
+
+            } catch (error) {
+                console.error(error);
+                alert("Error assigning hostel");
+            }
+        });
+
+
+
+
+        const findMyRoomButton = document.getElementById('findMyRoomButton');
+        const roommatesContainer = document.getElementById('roomie');
+
+        // Function to retrieve roommates data
+        async function getRoommates() {
+            const userId = JSON.parse(localStorage.getItem('user'))._id;
+            const userResponse = await fetch(`/get-user-data?userId=${userId}`);
+            const userData = await userResponse.json();
+            const user = userData.user;
+
+            if (user.room) {
+                const roomId = user.room;
+                const roommatesResponse = await fetch(`/get-roommates?roomId=${roomId}`);
+                const roommatesData = await roommatesResponse.json();
+                const roommates = roommatesData.roommates;
+
+                roommatesContainer.innerHTML = '';
+                if (roommates.length > 0) {
+                    roommates.forEach((roommate) => {
+                        const roommateElement = document.createElement('div');
+                        roommateElement.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'bg-blue-50', 'rounded-lg');
+                        roommateElement.innerHTML = `
+          <div>
+            <p class="font-medium">${roommate.name}</p>
+            <p class="text-sm text-blue-500">${roommate.email}</p>
+            <p class="text-sm text-blue-500">Phone: ${roommate.phone}</p>
+          </div>
+        `;
+                        roommatesContainer.appendChild(roommateElement);
+                    });
+                } else {
+                    const noRoommatesElement = document.createElement('p');
+                    noRoommatesElement.textContent = 'No roommates yet';
+                    roommatesContainer.appendChild(noRoommatesElement);
+                }
+            } else {
+                const noRoommatesElement = document.createElement('p');
+                noRoommatesElement.textContent = 'No roommates yet';
+                roommatesContainer.appendChild(noRoommatesElement);
+            }
+        }
+
+        // Call the getRoommates function when the page loads
+        document.addEventListener('DOMContentLoaded', getRoommates);
+
+        findMyRoomButton.addEventListener('click', async () => {
+            const userId = JSON.parse(localStorage.getItem('user'))._id;
+            console.log(userId)
+            const response = await fetch('/assign-room', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId }),
+            });
+            const data = await response.json();
+            if (data.message === 'You are already assigned a room') {
+                alertCtn.style.display = "block"
+                document.getElementById('alertMsg').textContent = data.message;
+                setTimeout(() => {
+                    alertCtn.style.display = "none";
+                }, 5000);
+            } else if (data.roomId) {
+                const roomId = data.roomId;
+                const roommatesResponse = await fetch(`/get-roommates?roomId=${roomId}`);
+                const roommatesData = await roommatesResponse.json();
+                const roommates = roommatesData.roommates;
+                roommatesContainer.innerHTML = '';
+                roommates.forEach((roommate) => {
+                    const roommateElement = document.createElement('div');
+                    roommateElement.classList.add('flex', 'justify-between', 'items-center', 'p-3', 'bg-blue-50', 'rounded-lg');
+                    roommateElement.innerHTML = `
+        <div>
+          <p class="font-medium">${roommate.name}</p>
+          <p class="text-sm text-blue-500">${roommate.email}</p>
+          <p class="text-sm text-blue-500">Phone: ${roommate.phone}</p>
+        </div>
+      `;
+                    roommatesContainer.appendChild(roommateElement);
+                });
+                alertCtn.style.display = "block"
+                document.getElementById('alertMsg').textContent = 'You have been allocated a room successfully!';
+                setTimeout(() => {
+                    alertCtn.style.display = "none";
+                }, 5000);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
