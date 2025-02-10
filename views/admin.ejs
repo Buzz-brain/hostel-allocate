@@ -44,7 +44,7 @@
                                 </div>
                                 <div class="ml-4">
                                     <p class="text-gray-500">Total Rooms</p>
-                                    <h3 class="text-xl font-bold">8</h3>
+                                    <h3 class="text-xl font-bold" id="total-rooms"></h3>
                                 </div>
                             </div>
                         </div>
@@ -53,8 +53,8 @@
                                 <div class="p-3 bg-green-500 rounded-lg"><i
                                         class="fas fa-user-check text-white text-xl"></i></div>
                                 <div class="ml-4">
-                                    <p class="text-gray-500">Allocated</p>
-                                    <h3 class="text-xl font-bold">4</h3>
+                                    <p class="text-gray-500">Allocated Roomate</p>
+                                    <h3 class="text-xl font-bold" id="students-with-roomate"></h3>
                                 </div>
                             </div>
                         </div>
@@ -63,8 +63,8 @@
                                 <div class="p-3 bg-yellow-500 rounded-lg"><i
                                         class="fas fa-clock text-white text-xl"></i></div>
                                 <div class="ml-4">
-                                    <p class="text-gray-500">Pending</p>
-                                    <h3 class="text-xl font-bold">0</h3>
+                                    <p class="text-gray-500">Pending Roomate</p>
+                                    <h3 class="text-xl font-bold" id="students-without-roomate"></h3>
                                 </div>
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                                         class="fas fa-users text-white text-xl"></i></div>
                                 <div class="ml-4">
                                     <p class="text-gray-500">Total Students</p>
-                                    <h3 class="text-xl font-bold">10</h3>
+                                    <h3 class="text-xl font-bold" id="total-students"></h3>
                                 </div>
                             </div>
                         </div>
@@ -87,56 +87,17 @@
                                     <thead>
                                         <tr>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                Student</th>
+                                                Student Name</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                Room</th>
+                                                Room No.</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                Date</th>
+                                                Hostel Name</th>
                                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                Status</th>
+                                                Roommate Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        <tr>
-                                            <td class="px-4 py-3">Somto Uzoho</td>
-                                            <td class="px-4 py-3">B-101</td>
-                                            <td class="px-4 py-3">2024-02-15</td>
-                                            <td class="px-4 py-3"><span
-                                                    class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Confirmed</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4 py-3">Irish Nwadike</td>
-                                            <td class="px-4 py-3">B-102</td>
-                                            <td class="px-4 py-3">2024-02-15</td>
-                                            <td class="px-4 py-3"><span
-                                                    class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Confirmed</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4 py-3">Sarah John</td>
-                                            <td class="px-4 py-3">G-101</td>
-                                            <td class="px-4 py-3">2024-02-14</td>
-                                            <td class="px-4 py-3"><span
-                                                    class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Confirmed</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4 py-3">Mira Precious</td>
-                                            <td class="px-4 py-3">G-101</td>
-                                            <td class="px-4 py-3">2024-02-14</td>
-                                            <td class="px-4 py-3"><span
-                                                    class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Confirmed</span>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-4 py-3">Micheal Miracle</td>
-                                            <td class="px-4 py-3">B-101</td>
-                                            <td class="px-4 py-3">2024-02-14</td>
-                                            <td class="px-4 py-3"><span
-                                                    class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Confirmed</span>
-                                            </td>
-                                        </tr>
+                                    <tbody class="divide-y divide-gray-200" id="student-details-tbody">
+                                      
                                     </tbody>
                                 </table>
                             </div>
@@ -167,3 +128,66 @@
             </div>
         </div>
     </footer>
+<script>
+  // Fetch total rooms
+  fetch('/get-room-count')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('total-rooms').innerText = data.roomCount;
+    })
+    .catch(error => console.error(error));
+
+  // Fetch total students
+  fetch('/get-student-count')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('total-students').innerText = data.studentCount;
+    })
+    .catch(error => console.error(error));
+
+
+// Fetch student details
+fetch('/get-student-details')
+  .then(response => response.json())
+  .then(data => {
+    const studentDetailsTbody = document.getElementById('student-details-tbody');
+    studentDetailsTbody.innerHTML = '';
+    data.studentDetails.forEach(student => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="px-4 py-3">${student.name}</td>
+        <td class="px-4 py-3">RM-${student.roomNumber}</td>
+        <td class="px-4 py-3">${student.hostelName}</td>
+        <td class="px-4 py-3">
+  <span 
+    class="px-2 py-1 text-xs rounded-full 
+    ${student.status === 'Not Allocated' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+    ${student.status}
+  </span>
+</td>
+
+      `;
+      studentDetailsTbody.appendChild(row);
+    });
+  })
+  .catch(error => console.error(error));
+
+
+
+    // Fetch students without room
+  fetch('/get-students-without-roommate')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('students-without-roomate').innerText = data.studentsWithoutRoommate.length;
+    })
+    .catch(error => console.error(error));
+
+  // Fetch students with room
+  fetch('/get-students-with-roommate')
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('students-with-roomate').innerText = data.studentsWithRoommate.length;
+    })
+    .catch(error => console.error(error));
+
+</script>

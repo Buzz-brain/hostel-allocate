@@ -50,7 +50,7 @@ const studentSchema = new mongoose.Schema({
     role: { type: String, default: 'student' },
     phone: String,
     hostel: String,
-    room: String,
+    room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
     preferences: {
         lightCondition: String,
         noiseLevel: String,
@@ -138,39 +138,38 @@ app.post('/verify-token', async (req, res) => {
 
 // Route for login
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // Validate the user's request
-    if (!email || !password) {
-        return res.json({ message: 'Please fill in all fields' });
-    }
+  // Validate the user's request
+  if (!email || !password) {
+    return res.json({ message: 'Please fill in all fields' });
+  }
 
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/.test(email)) {
-        return res.json({ message: 'Invalid email format' });
-    }
+  if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/.test(email)) {
+    return res.json({ message: 'Invalid email format' });
+  }
 
-    if (password.length < 4) {
-        return res.json({ message: 'Password must be at least 4 characters' });
-    }
+  if (password.length < 4) {
+    return res.json({ message: 'Password must be at least 4 characters' });
+  }
 
-    const user = await Student.findOne({ email });
-
+  let user = await Student.findOne({ email });
+  if (!user) {
+    user = await Admin.findOne({ email });
     if (!user) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
+  }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    return res.status(401).json({ message: 'Invalid email or password' });
+  }
 
-    if (!isValidPassword) {
-        return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    const token = jwt.sign({ userId: user._id, role: user.role }, 'secretkey', { expiresIn: '1h' });
-
-    const message = "Login Successful"
-
-    res.json({ token, user, message });
-});    
+  const token = jwt.sign({ userId: user._id, role: user.role }, 'secretkey', { expiresIn: '1h' });
+  const message = "Login Successful"
+  res.json({ token, user, message });
+});
 
 
 
@@ -224,50 +223,53 @@ app.post('/assign-hostel', async (req, res) => {
     res.json({ user, roommates });
   });
 
-  
+
 // Route to assign room
 app.post('/assign-room', async (req, res) => {
-    const { userId } = req.body;
-    const user = await Student.findById(userId);
-    console.log(user)
+  const { userId } = req.body;
+  const user = await Student.findById(userId);
+  console.log(user)
 
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-    }
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
 
-    // Check if the user is already assigned a room
-    if (user.room) {
-        return res.json({ message: 'You are already assigned a room' });
-    }
+  // Check if the user has a hostel assigned
+  if (!user.hostel) {
+    return res.status(400).json({ message: 'Hostel must be assigned before assigning a room' });
+  }
 
-    const room = await Room.findOne({ hostel: user.hostel, preferences: user.preferences });
+  // Check if the user is already assigned a room
+  if (user.room) {
+    return res.json({ message: 'You are already assigned a room' });
+  }
 
-    if (!room) {
-        // Create a new room if no matching room is found
-        const newRoom = new Room({
-            hostel: user.hostel,
-            preferences: user.preferences,
-            occupants: [user._id]
-        });
-        await newRoom.save();
-        user.room = newRoom._id; // Update the user's room ID
-        await user.save();
-        res.json({ roomId: newRoom._id }); // Return the room ID
+  const room = await Room.findOne({ hostel: user.hostel, preferences: user.preferences });
+  if (!room) {
+    // Create a new room if no matching room is found
+    const newRoom = new Room({ hostel: user.hostel, preferences: user.preferences, occupants: [user._id] });
+    await newRoom.save();
+    user.room = newRoom._id;
+    // Update the user's room ID
+    await user.save();
+    res.json({ roomId: newRoom._id });
+    // Return the room ID
+  } else {
+    // Check if the user is already in the room
+    if (!room.occupants.includes(user._id)) {
+      // Add user to existing room
+      room.occupants.push(user._id);
+      await room.save();
+      user.room = room._id;
+      // Update the user's room ID
+      await user.save();
+      res.json({ roomId: room._id });
+      // Return the room ID
     } else {
-        // Check if the user is already in the room
-        if (!room.occupants.includes(user._id)) {
-            // Add user to existing room
-            room.occupants.push(user._id);
-            await room.save();
-            user.room = room._id; // Update the user's room ID
-            await user.save();
-            res.json({ roomId: room._id }); // Return the room ID
-        } else {
-            res.json({ message: 'User is already in the room' });
-        }
+      res.json({ message: 'User is already in the room' });
     }
+  }
 });
-
 
 
 
@@ -286,6 +288,96 @@ app.get('/get-roommates', async (req, res) => {
 
 
 
+
+
+
+
+
+
+// Admin 
+
+app.get('/get-room-count', async (req, res) => {
+    try {
+      const roomCount = await Room.countDocuments();
+      res.json({ roomCount });
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching room count' });
+    }
+  });
+  
+
+  app.get('/get-student-count', async (req, res) => {
+    try {
+      const studentCount = await Student.countDocuments();
+      res.json({ studentCount });
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching student count' });
+    }
+  });
+  
+
+  app.get('/get-students-without-roommate', async (req, res) => {
+    try {
+      const studentsWithoutRoommate = await Student.find({
+        room: { $exists: true },
+      }).populate('room').then(students => {
+        return students.filter(student => student.room.occupants.length === 1);
+      });
+      res.json({ studentsWithoutRoommate });
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching students without roommate' });
+    }
+  });
+  
+  
+  app.get('/get-students-with-roommate', async (req, res) => {
+    try {
+      const studentsWithRoommate = await Student.find({
+        room: { $exists: true },
+      }).populate('room').then(students => {
+        return students.filter(student => student.room.occupants.length > 1);
+      });
+      res.json({ studentsWithRoommate });
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching students with roommate' });
+    }
+  });
+  
+  
+  
+
+  app.get('/get-students-ranked', async (req, res) => {
+    try {
+      const students = await Student.find().sort({ createdAt: -1 });
+      res.json({ students });
+    } catch (err) {
+      res.status(500).json({ message: 'Error fetching students' });
+    }
+  });
+  
+  app.get('/get-student-details', async (req, res) => {
+    try {
+      const rooms = await Room.find();
+      const roomIds = rooms.map(room => room._id.toString());
+      const students = await Student.find().populate('room');
+      const studentDetails = students.map(student => {
+        const roomNumber = roomIds.indexOf(student.room._id.toString()) + 1;
+        const status = student.room.occupants.length > 1 ? 'Allocated' : 'Not Allocated';
+        return {
+          name: student.name,
+          roomNumber,
+          hostelName: student.hostel,
+          status
+        };
+      });
+      res.json({ studentDetails });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error fetching student details' });
+    }
+  });
+  
+  
 
 // Start the server
 app.listen(port, () => {
